@@ -7,6 +7,10 @@ function initPage() {
     const currentHumidityEl = document.getElementById("humidity");4
     const currentWindEl = document.getElementById("wind-speed");
     const currentUVEl = document.getElementById("UV-index");    
+    const historyEl = document.getElementById("history");
+    let searchHistory = JSON.parse(localStorage.getItem("search")) || [];
+    console.log(searchHistory);
+
 
 //API key
 const APIKey = "c09bae87a6bcc05461fb40cbd7520587"
@@ -27,7 +31,7 @@ const APIKey = "c09bae87a6bcc05461fb40cbd7520587"
             let weatherPic = response.data.weather[0].icon;
             currentPicEl.setAttribute("src","https://openweathermap.org/img/wn/" + weatherPic + "@2x.png");
             currentPicEl.setAttribute("alt",response.data.weather[0].description);
-            currentTempEl.innerHTML = "Temperature: " + k2f(response.data.main.temp) + " &#176F";
+            currentTempEl.innerHTML = "Temperature: " + kelvinToFehrenheit(response.data.main.temp) + " &#176F";
             currentHumidityEl.innerHTML = "Humidity: " + response.data.main.humidity + "%";
             currentWindEl.innerHTML = "Wind Speed: " + response.data.wind.speed + " MPH";
         let lat = response.data.coord.lat;
@@ -65,7 +69,7 @@ const APIKey = "c09bae87a6bcc05461fb40cbd7520587"
                 forecastWeatherEl.setAttribute("alt",response.data.list[forecastIndex].weather[0].description);
                 forecastEls[i].append(forecastWeatherEl);
                 const forecastTempEl = document.createElement("p");
-                forecastTempEl.innerHTML = "Temp: " + k2f(response.data.list[forecastIndex].main.temp) + " &#176F";
+                forecastTempEl.innerHTML = "Temp: " + kelvinToFehrenheit(response.data.list[forecastIndex].main.temp) + " &#176F";
                 forecastEls[i].append(forecastTempEl);
                 const forecastHumidityEl = document.createElement("p");
                 forecastHumidityEl.innerHTML = "Humidity: " + response.data.list[forecastIndex].main.humidity + "%";
@@ -77,15 +81,41 @@ const APIKey = "c09bae87a6bcc05461fb40cbd7520587"
 
     searchEl.addEventListener("click",function() {
         const searchTerm = inputEl.value;
-        getWeather(searchTerm)
+        getWeather(searchTerm);
+        searchHistory.push(searchTerm);
+        localStorage.setItem("search",JSON.stringify(searchHistory));
+        renderSearchHistory();
     })
 
-//convert Kelvin to Ferinheit
-    function k2f(K) {
+    clearEl.addEventListener("click",function() {
+        searchHistory = [];
+        renderSearchHistory();
+    })
+
+//convert kelvin to fehrenheit
+    function kelvinToFehrenheit(K) {
         return Math.floor((K - 273.15) *1.8 +32);
     }
 
-//  Save user's search requests and display them underneath search form
+    function renderSearchHistory() {
+        historyEl.innerHTML = "";
+        for (let i=0; i<searchHistory.length; i++) {
+            const historyItem = document.createElement("input");
+            // <input type="text" readonly class="form-control-plaintext" id="staticEmail" value="email@example.com"></input>
+            historyItem.setAttribute("type","text");
+            historyItem.setAttribute("readonly",true);
+            historyItem.setAttribute("class", "form-control d-block bg-white");
+            historyItem.setAttribute("value", searchHistory[i]);
+            historyItem.addEventListener("click",function() {
+                getWeather(historyItem.value);
+            })
+            historyEl.append(historyItem);
+        }
+    }
 
+    renderSearchHistory();
+    if (searchHistory.length > 0) {
+        getWeather(searchHistory[searchHistory.length - 1]);
+    }
 }
 initPage();
