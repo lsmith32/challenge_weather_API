@@ -9,8 +9,6 @@ function initPage() {
     const currentUVEl = document.getElementById("UV-index");    
     const historyEl = document.getElementById("history");
     let searchHistory = JSON.parse(localStorage.getItem("search")) || [];
-    console.log(searchHistory);
-
 
 //API key
 const APIKey = "c09bae87a6bcc05461fb40cbd7520587"
@@ -20,10 +18,8 @@ const APIKey = "c09bae87a6bcc05461fb40cbd7520587"
         let queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&appid=" + APIKey;
         axios.get(queryURL)
         .then(function(response){
-            console.log(response);
 //  Parse response to display current conditions
             const currentDate = new Date(response.data.dt*1000);
-            console.log(currentDate);
             const day = currentDate.getDate();
             const month = currentDate.getMonth() + 1;
             const year = currentDate.getFullYear();
@@ -51,7 +47,6 @@ const APIKey = "c09bae87a6bcc05461fb40cbd7520587"
         axios.get(forecastQueryURL)
         .then(function(response){
 //  Parse response to display forecast for next 5 days underneath current conditions
-            console.log(response);
             const forecastEls = document.querySelectorAll(".forecast");
             for (i=0; i<forecastEls.length; i++) {
                 forecastEls[i].innerHTML = "";
@@ -101,7 +96,6 @@ const APIKey = "c09bae87a6bcc05461fb40cbd7520587"
         historyEl.innerHTML = "";
         for (let i=0; i<searchHistory.length; i++) {
             const historyItem = document.createElement("input");
-            // <input type="text" readonly class="form-control-plaintext" id="staticEmail" value="email@example.com"></input>
             historyItem.setAttribute("type","text");
             historyItem.setAttribute("readonly",true);
             historyItem.setAttribute("class", "form-control d-block bg-white");
